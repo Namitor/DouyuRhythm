@@ -10,15 +10,8 @@ db_main = mongo_client.get_database('ProjectTides')
 db_danmu = db_main.get_collection('danmu')
 
 
-# db_refinedlog.authenticate('senzhub', 'Senz2everyone')
-# db_user_location = db_refinedlog.get_collection('UserLocation')
-# db_user_motion = db_refinedlog.get_collection('UserMotion')
-# db_hos = db_refinedlog.get_collection('HomeOfficeStatus')
-# db_combined_timeline = db_refinedlog.get_collection('CombinedTimelines')
-
-
 def get_danmu(db_inst=db_danmu):
-    find_result = db_inst.find({'tag': 'test_data'})
+    find_result = db_inst.find().limit(30)
     return find_result
 
 
