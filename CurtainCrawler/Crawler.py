@@ -1,11 +1,17 @@
+import os
 import socket
 import datetime
+import sys
 import MessageHandler
 import time
 import uuid
 import hashlib
 import HTTPUtils
 import ResponseParser
+
+project_path = os.path.dirname(__file__)
+sys.path.append(project_path)
+
 from HeartThread import HeartThread
 from dao_utils import db_controller
 
