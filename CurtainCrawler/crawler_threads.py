@@ -2,8 +2,10 @@ import os
 import threading
 import sys
 
-project_path = os.path.dirname(__file__)
+project_path = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(project_path)
+print 'project path = %s' % project_path
+
 from CurtainCrawler.Crawler import Crawler
 
 __author__ = 'jayvee'
