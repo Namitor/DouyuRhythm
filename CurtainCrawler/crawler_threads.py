@@ -22,7 +22,7 @@ def start_crawl_room_list(room_urls):
         thread_task.start()
     print 'start tasks'
     # gevent.joinall(task_list)
-    print 'tasks done'
+    # print 'tasks done'
 
 
 if __name__ == '__main__':
