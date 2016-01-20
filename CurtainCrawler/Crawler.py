@@ -1,4 +1,5 @@
 import socket
+import datetime
 import MessageHandler
 import time
 import uuid
@@ -43,7 +44,8 @@ class Crawler(object):
         while (1):
             nickname, content = ResponseParser.parse_content(main_socket.recv(1024))
             if nickname != '' and content != '':
-                print 'nickname: ' + nickname + ' content: ' + content
+                # print 'nickname: ' + nickname + ' content: ' + content
+                yield nickname, content, datetime.datetime.utcnow(), self.roomid
 
     def login_request(self, server_ip, server_port):
         print 'login_server_ip: ' + server_ip + ' login_server_port: ' + server_port
@@ -65,4 +67,3 @@ class Crawler(object):
                 self.groupid = gid
                 print 'rid: ' + rid + ' gid: ' + str(gid)
                 break
-
