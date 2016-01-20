@@ -1,3 +1,4 @@
+import threading
 import gevent
 import thread
 from CurtainCrawler.Crawler import Crawler
@@ -9,18 +10,20 @@ def crawl_and_save(room_url):
     crawler = Crawler(room_url)
     print 'start crawl %s' % room_url
     crawler.start()
+    # thread.start_new_thread(crawler.start, ())
     # for userid, nickname, content, post_time, room_id in crawler.start():
     #     print '[room:%s][%s]%s: %s' % (room_id, post_time, nickname, content)
     #     db_controller.save_danmu(userid, nickname, content, post_time, room_id)
 
 
 def start_crawl_room_list(room_urls):
-    task_list = []
     for room_url in room_urls:
         # thread.start_new_thread(crawl_and_save, (room_url,))
-        task_list.append(gevent.spawn(crawl_and_save, room_url))
+        # task_list.append(gevent.spawn(crawl_and_save, room_url))
+        thread_task = threading.Thread(target=crawl_and_save, name=room_url, args=(room_url,))
+        thread_task.start()
     print 'start tasks'
-    gevent.joinall(task_list)
+    # gevent.joinall(task_list)
     print 'tasks done'
 
 
