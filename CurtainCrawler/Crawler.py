@@ -10,6 +10,7 @@ import HTTPUtils
 import ResponseParser
 
 project_path = os.path.dirname(__file__)
+print 'project path = %s' % project_path
 sys.path.append(project_path)
 
 from HeartThread import HeartThread
