@@ -6,9 +6,9 @@ __author__ = 'wangzi6147'
 
 def main():
     crawler = Crawler()
-    for nickname, content, post_time, room_id in crawler.start('http://www.douyutv.com/qiuri'):
+    for userid, nickname, content, post_time, room_id in crawler.start('http://www.douyutv.com/qiuri'):
         print '[%s]%s: %s' % (post_time, nickname, content)
-        db_controller.save_danmu(nickname, content, post_time, room_id)
+        db_controller.save_danmu(userid, nickname, content, post_time, room_id)
 
 
 if __name__ == '__main__':

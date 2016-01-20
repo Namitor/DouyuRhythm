@@ -42,10 +42,10 @@ class Crawler(object):
         heart_thread.start()
 
         while (1):
-            nickname, content = ResponseParser.parse_content(main_socket.recv(1024))
-            if nickname != '' and content != '':
+            userid, nickname, content = ResponseParser.parse_content(main_socket.recv(1024))
+            if userid != -1:
                 # print 'nickname: ' + nickname + ' content: ' + content
-                yield nickname, content, datetime.datetime.utcnow(), self.roomid
+                yield userid, nickname, content, datetime.datetime.utcnow(), self.roomid
 
     def login_request(self, server_ip, server_port):
         print 'login_server_ip: ' + server_ip + ' login_server_port: ' + server_port

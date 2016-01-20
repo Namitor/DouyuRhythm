@@ -15,8 +15,9 @@ def get_danmu(db_inst=db_danmu):
     return find_result
 
 
-def save_danmu(user_name, content, post_time, room_id, db_inst=db_danmu):
-    db_inst.insert({'user_name': user_name, 'content': content, 'post_time': datetime.utcnow(), 'room_id': room_id})
+def save_danmu(userid, user_name, content, post_time, room_id, db_inst=db_danmu):
+    db_inst.insert({'userid': userid, 'user_name': user_name, 'content': content, 'post_time': datetime.utcnow(),
+                    'room_id': room_id})
 
 
 if __name__ == '__main__':
