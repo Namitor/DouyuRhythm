@@ -1,6 +1,13 @@
-__author__ = 'wangzi6147'
-
 import socket
+import MessageHandler
+import time
+import uuid
+import hashlib
+import HTTPUtils
+import ResponseParser
+from HeartThread import HeartThread
+
+__author__ = 'wangzi6147'
 
 
 class Crawler(object):
@@ -9,17 +16,53 @@ class Crawler(object):
         self.socket_port = 12601
         self.username = 'username'
         self.password = 'password'
+        self.roomid = 421867
+        self.groupid = 27
 
-    def start(self):
+    def start(self, url):
+
+        page_html = HTTPUtils.get(url)
+        self.roomid = int(ResponseParser.parse_room_id(page_html))
+        server_ip, server_port = ResponseParser.parse_server_info(page_html)
+        self.login_request(server_ip, server_port)
+
         main_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        print 'connect'
         main_socket.connect((self.socket_ip, self.socket_port))
-        main_socket.sendall('type@=loginreq/username@=visitor34807350/password@=1234567890123456/roomid@=25515/"')
-        main_socket.sendall('type@=joingroup/rid@=25515/gid@=94/')
-        while(1):
-            data = main_socket.recv(1024)
-            print data
+        # self.get_groupid(main_socket)
+        print 'login'
+        main_socket.send(MessageHandler.build(
+            'type@=loginreq/username@=username/password@=password/roomid@={0}/'.format(self.roomid)))
+        main_socket.recv(1024)
+        print 'join'
+        main_socket.send(MessageHandler.build('type@=joingroup/rid@={0}/gid@={1}/'.format(self.roomid, self.groupid)))
 
+        heart_thread = HeartThread(main_socket, 40)
+        heart_thread.start()
 
+        while (1):
+            nickname, content = ResponseParser.parse_content(main_socket.recv(1024))
+            if nickname != '' and content != '':
+                print 'nickname: ' + nickname + ' content: ' + content
 
-
+    def login_request(self, server_ip, server_port):
+        print 'login_server_ip: ' + server_ip + ' login_server_port: ' + server_port
+        login_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        login_socket.connect((server_ip, int(server_port)))
+        cur_time = str(int(time.time()))
+        devid = str(uuid.uuid1()).replace('-', '').upper()
+        m = hashlib.md5()
+        m.update(str(cur_time) + '7oE9nPEG9xXV69phU31FYCLUagKeYtsF' + devid)
+        vk = m.hexdigest()
+        login_socket.send(MessageHandler.build(
+            'type@=loginreq/username@=/ct@=0/password@=/roomid@={0}/devid@={1}/rt@={2}/vk@={3}/ver@=20150929/'.format(
+                self.roomid, devid, cur_time, vk)))
+        while (1):
+            response = login_socket.recv(1024)
+            rid, gid = ResponseParser.parse_id(response)
+            if rid != '' and gid != -1:
+                self.roomid = rid
+                self.groupid = gid
+                print 'rid: ' + rid + ' gid: ' + str(gid)
+                break
 

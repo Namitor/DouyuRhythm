@@ -5,7 +5,7 @@ __author__ = 'wangzi6147'
 
 def main():
     crawler = Crawler()
-    crawler.start()
+    crawler.start('http://www.douyutv.com/qiuri')
 
 
 if __name__ == '__main__':
