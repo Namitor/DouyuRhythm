@@ -7,22 +7,24 @@ import hashlib
 import HTTPUtils
 import ResponseParser
 from HeartThread import HeartThread
+from dao_utils import db_controller
 
 __author__ = 'wangzi6147'
 
 
 class Crawler(object):
-    def __init__(self):
+    def __init__(self, url):
         self.socket_ip = '125.88.176.8'
         self.socket_port = 12601
         self.username = 'username'
         self.password = 'password'
         self.roomid = 421867
         self.groupid = 27
+        self.url = url
 
-    def start(self, url):
+    def start(self):
 
-        page_html = HTTPUtils.get(url)
+        page_html = HTTPUtils.get(self.url)
         self.roomid = int(ResponseParser.parse_room_id(page_html))
         server_ip, server_port = ResponseParser.parse_server_info(page_html)
         self.login_request(server_ip, server_port)
@@ -43,9 +45,12 @@ class Crawler(object):
 
         while (1):
             userid, nickname, content = ResponseParser.parse_content(main_socket.recv(1024))
+            post_time = datetime.datetime.utcnow()
             if userid != -1:
                 # print 'nickname: ' + nickname + ' content: ' + content
-                yield userid, nickname, content, datetime.datetime.utcnow(), self.roomid
+                print '[room:%s][%s]%s: %s' % (self.roomid, post_time, nickname, content)
+                db_controller.save_danmu(userid, nickname, content, post_time, self.roomid)
+                # yield userid, nickname, content, datetime.datetime.utcnow(), self.roomid
 
     def login_request(self, server_ip, server_port):
         print 'login_server_ip: ' + server_ip + ' login_server_port: ' + server_port
