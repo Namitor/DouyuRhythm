@@ -1,6 +1,4 @@
 import threading
-import gevent
-import thread
 from CurtainCrawler.Crawler import Crawler
 
 __author__ = 'jayvee'
