@@ -1,3 +1,4 @@
+# coding=utf-8
 import os
 import socket
 import datetime
@@ -45,6 +46,7 @@ class Crawler(object):
             'type@=loginreq/username@=username/password@=password/roomid@={0}/'.format(self.roomid)))
         main_socket.recv(1024)
         print 'join'
+        print 'gid=%s' % self.groupid
         main_socket.send(MessageHandler.build('type@=joingroup/rid@={0}/gid@={1}/'.format(self.roomid, self.groupid)))
 
         heart_thread = HeartThread(main_socket, 40)

@@ -1,3 +1,5 @@
+# coding=utf-8
+
 from Crawler import Crawler
 from dao_utils import db_controller
 
