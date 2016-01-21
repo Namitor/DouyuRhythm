@@ -3,6 +3,7 @@ import os
 import socket
 import datetime
 import sys
+import requests
 import MessageHandler
 import time
 import uuid
@@ -32,7 +33,8 @@ class Crawler(object):
 
     def start(self):
 
-        page_html = HTTPUtils.get(self.url)
+        # page_html = HTTPUtils.get(self.url)
+        page_html = requests.get(self.url).content
         self.roomid = int(ResponseParser.parse_room_id(page_html))
         server_ip, server_port = ResponseParser.parse_server_info(page_html)
         self.login_request(server_ip, server_port)
