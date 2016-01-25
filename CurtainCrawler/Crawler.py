@@ -33,7 +33,7 @@ class Crawler(object):
         self.groupid = 27
         self.url = url
 
-    def start(self):
+    def start(self, is_stop=False):
 
         # page_html = HTTPUtils.get(self.url)
         page_html = requests.get(self.url).content
@@ -57,7 +57,7 @@ class Crawler(object):
         heart_thread = HeartThread(main_socket, 40)
         heart_thread.start()
 
-        while (1):
+        while not is_stop:
             userid, nickname, content = response_parser.parse_content(main_socket.recv(1024))
             post_time = datetime.datetime.utcnow()
             if userid != -1:
