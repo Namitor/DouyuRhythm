@@ -75,3 +75,4 @@ if __name__ == '__main__':
     task_dict['http://www.douyutv.com/cave'].stop()
     time.sleep(5)
     task_dict['http://www.douyutv.com/pis'].stop()
+    
