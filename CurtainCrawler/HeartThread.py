@@ -10,9 +10,14 @@ class HeartThread(threading.Thread):
         threading.Thread.__init__(self)
         self.socket = socket
         self.interval = interval
+        self.is_stop = False
 
     def run(self):
-        while (1):
+        while not self.is_stop:
             print 'heart beat'
             self.socket.send(socket_message.build('type@=keeplive/tick@=%{0}/'.format(int(time.time()))))
             time.sleep(self.interval)
+
+
+    def stop(self):
+        self.is_stop = True

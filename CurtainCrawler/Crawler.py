@@ -3,12 +3,10 @@ import os
 import socket
 import datetime
 import sys
+import threading
+
 import requests
 import socket_message
-import time
-import uuid
-import hashlib
-import HTTPUtils
 import response_parser
 
 project_path = os.path.dirname(os.path.dirname(__file__))
@@ -23,8 +21,9 @@ __author__ = 'wangzi6147'
 LOGIN_SERVER = 'http://127.0.0.1:9090/login'
 
 
-class Crawler(object):
+class Crawler(threading.Thread):
     def __init__(self, url):
+        threading.Thread.__init__(self)
         self.socket_ip = '125.88.176.8'
         self.socket_port = 12601
         self.username = 'username'
@@ -32,8 +31,9 @@ class Crawler(object):
         self.roomid = 421867
         self.groupid = 27
         self.url = url
+        self.is_stop = False
 
-    def start(self, is_stop=False):
+    def run(self):
 
         # page_html = HTTPUtils.get(self.url)
         page_html = requests.get(self.url).content
@@ -57,7 +57,7 @@ class Crawler(object):
         heart_thread = HeartThread(main_socket, 40)
         heart_thread.start()
 
-        while not is_stop:
+        while not self.is_stop:
             userid, nickname, content = response_parser.parse_content(main_socket.recv(1024))
             post_time = datetime.datetime.utcnow()
             if userid != -1:
@@ -66,29 +66,34 @@ class Crawler(object):
                 db_controller.save_danmu(userid, nickname, content, post_time, self.roomid)
                 # yield userid, nickname, content, datetime.datetime.utcnow(), self.roomid
 
-    def login_request(self, server_ip, server_port):
-        print 'login_server_ip: ' + server_ip + ' login_server_port: ' + server_port
-        login_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        login_socket.connect((server_ip, int(server_port)))
-        cur_time = str(int(time.time()))
-        devid = str(uuid.uuid1()).replace('-', '').upper()
-        m = hashlib.md5()
-        m.update(str(cur_time) + '7oE9nPEG9xXV69phU31FYCLUagKeYtsF' + devid)
-        vk = m.hexdigest()
-        login_socket.send(socket_message.build(
-            'type@=loginreq/username@=/ct@=0/password@=/roomid@={0}/devid@={1}/rt@={2}/vk@={3}/ver@=20150929/'.format(
-                self.roomid, devid, cur_time, vk)))
-        while (1):
-            response = login_socket.recv(1024)
-            rid, gid = response_parser.parse_id(response)
-            if rid != '' and gid != -1:
-                self.roomid = rid
-                self.groupid = gid
-                print 'rid: ' + rid + ' gid: ' + str(gid)
-                break
+        heart_thread.stop()
+        main_socket.close()
+
+    # def login_request(self, server_ip, server_port):
+    #     print 'login_server_ip: ' + server_ip + ' login_server_port: ' + server_port
+    #     login_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    #     login_socket.connect((server_ip, int(server_port)))
+    #     cur_time = str(int(time.time()))
+    #     devid = str(uuid.uuid1()).replace('-', '').upper()
+    #     m = hashlib.md5()
+    #     m.update(str(cur_time) + '7oE9nPEG9xXV69phU31FYCLUagKeYtsF' + devid)
+    #     vk = m.hexdigest()
+    #     login_socket.send(socket_message.build(
+    #         'type@=loginreq/username@=/ct@=0/password@=/roomid@={0}/devid@={1}/rt@={2}/vk@={3}/ver@=20150929/'.format(
+    #             self.roomid, devid, cur_time, vk)))
+    #     while (1):
+    #         response = login_socket.recv(1024)
+    #         rid, gid = response_parser.parse_id(response)
+    #         if rid != '' and gid != -1:
+    #             self.roomid = rid
+    #             self.groupid = gid
+    #             print 'rid: ' + rid + ' gid: ' + str(gid)
+    #             break
 
     def login_server(self, server_ip, server_port):
         data = {'ip': server_ip, 'port': server_port, 'room': self.roomid}
         self.groupid = int(requests.post(LOGIN_SERVER, data=data).text)
         print self.groupid
-        pass
+
+    def stop(self):
+        self.is_stop = True
