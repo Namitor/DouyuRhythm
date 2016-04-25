@@ -25,7 +25,7 @@ LOGIN_SERVER = 'http://127.0.0.1:9090/login'
 
 class Crawler(object):
     def __init__(self, url):
-        self.socket_ip = '125.88.176.8'
+        self.socket_ip = '123.150.206.162'
         self.socket_port = 12601
         self.username = 'username'
         self.password = 'password'
@@ -62,7 +62,7 @@ class Crawler(object):
             post_time = datetime.datetime.utcnow()
             if userid != -1:
                 # print 'nickname: ' + nickname + ' content: ' + content
-                print '[room:%s][%s]%s: %s' % (self.roomid, post_time, nickname, content)
+                print '[room:%s][%s][userid:%s]%s: %s' % (self.roomid, post_time, userid, nickname, content)
                 db_controller.save_danmu(userid, nickname, content, post_time, self.roomid)
                 # yield userid, nickname, content, datetime.datetime.utcnow(), self.roomid
 

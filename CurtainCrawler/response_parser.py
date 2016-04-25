@@ -21,8 +21,10 @@ def parse_id(response):
 
 
 def parse_content(msg):
-    match = re.search(r'type@=chatmessage/.*/sender@=(\d.*?)/content@=(.*?)/snick@=(.*?)/', msg)
+    # print msg
+    # match = re.search(r'type@=chatmessage/.*/sender@=(\d.*?)/content@=(.*?)/snick@=(.*?)/', msg)
+    match = re.search(r'/uid@=(\d.*?)/nn@=(.*?)/txt@=(.*?)/', msg)
     if match == None:
         return -1, '', ''
     else:
-        return match.group(1), match.group(3), match.group(2)
+        return match.group(1), match.group(2), match.group(3)
