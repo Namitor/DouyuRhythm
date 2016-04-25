@@ -7,7 +7,7 @@ __author__ = 'wangzi6147'
 
 
 def main():
-    crawler = Crawler('http://www.douyutv.com/67373')
+    crawler = Crawler('http://www.douyu.com/156277')
     crawler.start()
     # for userid, nickname, content, post_time, room_id in crawler.start():
     #     print '[%s]%s: %s' % (post_time, nickname, content)
