@@ -3,7 +3,9 @@ import os
 import socket
 import datetime
 import sys
+import threading
 import requests
+from common_utils.logging_utils import common_logger
 import socket_message
 import time
 import uuid
@@ -23,8 +25,9 @@ __author__ = 'wangzi6147'
 LOGIN_SERVER = 'http://127.0.0.1:9090/login'
 
 
-class Crawler(object):
-    def __init__(self, url):
+class Crawler(threading.Thread):
+    def __init__(self, url, thread_id=None):
+        threading.Thread.__init__(self)
         self.socket_ip = '123.150.206.162'
         self.socket_port = 12601
         self.username = 'username'
@@ -32,9 +35,18 @@ class Crawler(object):
         self.roomid = 421867
         self.groupid = 27
         self.url = url
+        self.is_stop = False
+        self.heart_thread = None
+        if not thread_id:
+            self.thread_id = hashlib.md5(url).hexdigest()
+        else:
+            self.thread_id = thread_id
 
-    def start(self, is_stop=False):
+    # def start(self):
+    #     self.run()
 
+    def run(self):
+        common_logger.info('enter threading: %s' % self.thread_id)
         # page_html = HTTPUtils.get(self.url)
         page_html = requests.get(self.url).content
         self.roomid = int(response_parser.parse_room_id(page_html))
@@ -54,10 +66,10 @@ class Crawler(object):
         print 'gid=%s' % self.groupid
         main_socket.send(socket_message.build('type@=joingroup/rid@={0}/gid@={1}/'.format(self.roomid, self.groupid)))
 
-        heart_thread = HeartThread(main_socket, 40)
-        heart_thread.start()
+        self.heart_thread = HeartThread(main_socket, 40)
+        self.heart_thread.start()
 
-        while not is_stop:
+        while not self.is_stop:
             userid, nickname, content = response_parser.parse_content(main_socket.recv(1024))
             post_time = datetime.datetime.utcnow()
             if userid != -1:
@@ -65,6 +77,11 @@ class Crawler(object):
                 print '[room:%s][%s][userid:%s]%s: %s' % (self.roomid, post_time, userid, nickname, content)
                 db_controller.save_danmu(userid, nickname, content, post_time, self.roomid)
                 # yield userid, nickname, content, datetime.datetime.utcnow(), self.roomid
+
+    def shutdown(self):
+        common_logger.info('stoped thread: %s' % self.thread_id)
+        self.heart_thread.shutdown()
+        self.is_stop = True
 
     def login_request(self, server_ip, server_port):
         print 'login_server_ip: ' + server_ip + ' login_server_port: ' + server_port

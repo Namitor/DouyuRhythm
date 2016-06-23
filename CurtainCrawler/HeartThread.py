@@ -18,6 +18,6 @@ class HeartThread(threading.Thread):
             self.socket.send(socket_message.build('type@=keeplive/tick@=%{0}/'.format(int(time.time()))))
             time.sleep(self.interval)
 
-
-    def stop(self):
+    def shutdown(self):
         self.is_stop = True
+        print 'heart beat stop'
